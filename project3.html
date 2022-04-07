@@ -29,7 +29,7 @@
 
     <h4> Part 1: Choose Image </h4>
     
-    <p>Those four photos below are taken in my living room. I took these photos from different views. I put the TV in the middle, not because I want to show my brand new 55" television, but it could be an excellent reference for our future warping.</p>
+    <p>Those four photos below are taken in my living room. I took these photos from different views. I put the TV in the middle, not because I want to show my brand new 55" television and Hi-fi sound bar, but it could be an excellent reference for our future warping.</p>
 
     <figure class="item">
     <img class="u-max-full-width" width="300" src="./imgs/1.jpg"/>
@@ -48,7 +48,7 @@
 
   	<h4> Part 2: Recover homographies </h4>
 
-  	<p> In order to do the wraping, we will compute homography matrices and use them to warp the images. Only after warping, can we clip those photos in a proper position. For each pixel in the original photo, we assume that <code> p </code> is its <code>[x, y, 1]</code>. And for its new position <code> p' </code>, we need to use <code> H * p = p'</code> to get it. This homography has 8 degrees of freedom which we simpliy into 7 by setting the scaling factor, w, to be 1. And the <code> H * p = p'</code> is shown below.
+  	<p> In order to do the wraping, we will compute homography matrices and use them to warp the images. Only after warping, can we clip those photos in a proper position. For each pixel in the original photo, we assume that <code> p </code> is its <code>[x, y, 1]</code>. And for its new position <code> p'</code>, we need to use <code> H * p = p'</code> to get it. This homography has 8 degrees of freedom which we simpliy into 7 by setting the scaling factor, w, to be 1. And the <code> H * p = p'</code> is shown below.
     </p>
 
     <figure class="item">
@@ -73,10 +73,12 @@
     <img class="u-max-full-width" height="300" src="./imgs/equation4.jpg"/>
     </figure>
     
+    <p>One of the tedious processes is to get the location of the points we would like to use to calculate the H matrix. Thus, I write a function which could return the location of the points and store them in a txt file when I click the mouse on that image. This could highly simplify how we could get those locations.</p>
 
   	<h4> Part 3: Warp the images </h4>
 
-  	<p> This portion of the project involved using the warp homography transformation that was found in part 2 in order to warp images with overlap together to create mosaics. By warping these images with the projective transformation so that they are all on the same plane and then stitching these photos all together we create a photo that is able to show much more than a single picture alone. The points chosen were that of the same object / features in the overlap between the two pictures. These points were used to create the homography and then inverse warping was applied to create the warped image. I ultimately used two different methods to blend, neither gave perfect results. One resulted in faint overlaps/ misalignments while the other with Laplacian blending gave a noticeable seam. </p> 
+  	<p> The warping is matching the origin pixel to the pixel in the warped image. However, in the implementation of the warp function, it could be easier find what the origin pixel is while traversing all the pixel in the new image. For those non-integer results, I simply round them to integers. I set the RGB value of the new pixel as (0,0,0) if the origin position of that pixel locate outside the original image. The result of the four rectified images are shown below.</p> 
+
 
     <figure class="item">
     <img class="u-max-full-width" height="300" src="./imgs/out1.jpg"/>
@@ -98,12 +100,58 @@
 
     <h4> Part 4: Blend images into a mosaic  </h4>
 
+    <p>After warping, two images should have some overlapping area. Blending those image in this area could help the image look more natural through the transition area.</p>
 
-    <p> For me, the automatic stitching was much better as I was not particularly good at rigorously selecting points when using manual stitching and thus the alignments / warps of the images were not very precise as well. Overall automatic stiching results were much better. </p>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/blend.jpg"/>
+    </figure>
+
+    <p>I firstly implement the simplest way to compose two images. Just stitch two images half-half. However, the seams shows below in the transition area as what we expect.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="500" src="./imgs/w_img1.jpg"/>
+    </figure>
+
+    <p>This is not the result I want. Thus, I choose to use the Laplacian Pyramid to sample the two images and try to make them blend better. What influence the result could be the level of the pyramid. To find how the level of pyramid works, we generate blend area with different levels show below. Through the comparison we could also choose the best result as our final level of pyramid.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="600" src="./imgs/test3.jpg"/>
+    <figcaption class="caption"> <b>Level 3</b> </figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="600" src="./imgs/test4.jpg"/>
+    <figcaption class="caption"> Level 4 </figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="600" src="./imgs/test5.jpg"/>
+    <figcaption class="caption"> Level 5 </figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="600" src="./imgs/test6.jpg"/>
+    <figcaption class="caption"> Level 6 </figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="600" src="./imgs/test7.jpg"/>
+    <figcaption class="caption"> Level 7 </figcaption>
+    </figure><figure class="item">
+    <img class="u-max-full-width" height="600" src="./imgs/test8.jpg"/>
+    <figcaption class="caption"> Level 8 </figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="600" src="./imgs/test9.jpg"/>
+    <figcaption class="caption"> <b>Level 9</b> </figcaption>
+    </figure>
+
+    <p>As the level of pyramid increases, the seam blurs making the transition more natural. Nevertheless, the other objects and the background also blur. In this trade-off, I pefer the result of 7-level Laplacian pyramid. I finally choose it to get our final result shown below.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="600" src="./imgs/final.jpg"/>
+    <figcaption class="caption"> <b>Final Result</b> </figcaption>
+    </figure>
 
     <h4> Summary </h4>
 
-    <p> It was interesting to see how everything worked in order to arrive at the automatic mosaicing. There were a number of different steps, but it was cool to see how the pieces all fit together to eventually results in the final mosaic. All of the algorithms were pretty complex, but it was satisfying to finally understand them all at the end of the project. </p> 
+    <p> It was interesting to see how everything worked to arrive at the final mosaicing. There were a number of different steps, but it was great to see how the pictures from different views all fit together and eventually results in the final mosaic. If I have enough time, I would like to implement other blending methods. And also I would like to try to compose the video into a large image. And it could explain how the Pano mode on iphone camera works.</p> 
 
 
   	</div>
