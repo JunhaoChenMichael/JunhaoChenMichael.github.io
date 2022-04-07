@@ -1,0 +1,309 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style> 
+    h1 {text-align: center}
+    figure.item {
+    /* To correctly align image, regardless of content height: */
+    vertical-align: top;
+    display: inline-block;
+    /* To horizontally center images and caption */
+    text-align: center;
+    }
+    div {
+      padding: 20px;
+    }
+    </style>
+    <title>CSCI 6907 Project 3: Image Mosaicing</title>
+  </head>
+  <body>
+  	<h1>CSCI 6907 Project 3: Image Mosaicing</h1>
+  	<div>
+  	<h4> Junhao Chen</h4>
+
+    <p> In this project, we learn how to create a mosaic which connects multiple photos together into one picture. This project will test wraping and blending functions on two photographs and finally apply them to create a mosaic by projective warping, resampling and compositing the pictures. </p>
+
+    <h4> Part 1: Choose Image </h4>
+    
+    <p>Those four photos below are taken in my living room. I took these photos in different views. I put the TV in the middle, not because I want show my brand new 55" television, but it could be a great reference for our future wrapping.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" width="300" src="./imgs/1.jpg"/>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" width="300" src="./imgs/2.jpg"/>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" width="300" src="./imgs/3.jpg"/>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" width="300" src="./imgs/4.jpg"/>
+    </figure>
+    
+    <p></p>
+
+  	<h4> Part 2: Image Rectification </h4>
+
+  	<p> In order to do this, we will compute homographies and use them to warp the images to allow for the mosaic to be created. We begin the project by first taking images and rectifying them into a different plane. By doing so we manipulate the images such that it looks as though we are viewing them from a different perspective. We will pick at least four points on the image and match these points with those of a shape that we want these points to look like in the new perspective.
+
+    After we have these pairs, we want to calculate the parameters of the homography which we will use to transform the image. where <code> p' = H * p. </code> This homography has 8 degrees of freedom which we simpliy into 7 by setting the scaling factor, w, to be 1. We then solve for these 7 unknowns using the 4 pairs of points we defined. We want to solve the H matrix as seen below: </p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs/equation1.jpg"/>
+    </figure>
+
+    <p> H is the homography, (x, y) are the points on the image that will be warped and the (x', y') are points that we want to warp (x, y) to. w in this case is the scaling factor. We want to solve for a, b, c, d, e, f, g, h in the below matrix. We want to use multiple points to increase the accuracy of the warp and transformation. We plug in these values into our H matrix and use this matrix with inverse warping to map the coordinates p of the image to its p' in the warped image. </p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/equation2.jpg"/>
+    </figure>
+
+    <p> Below are rectified images that so that they are front parallel. </p>
+    <h6> Laptop </h6>
+    <figure class="item">
+    <img class="u-max-full-width" height="500" src="./imgs/laptop_small.jpg"/>
+    <figcaption class="caption">Original laptop position</figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="500" src="./output/warped_laptop_small.jpg"/>
+    <figcaption class="caption">Rectified laptop position</figcaption>
+    </figure>
+     <figure class="item">
+    <img class="u-max-full-width" height="500" src="./output/warped_laptop_small_cropped.jpg"/>
+    <figcaption class="caption">Rectified laptop position</figcaption>
+    </figure>
+<h6> Art </h6>
+    <figure class="item">
+    <img class="u-max-full-width" height="500" src="./imgs/art.jpg"/>
+    <figcaption class="caption">Original art</figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="500" src="./output/art_warped_cropped.jpg"/>
+    <figcaption class="caption">Rectified art</figcaption>
+    </figure>
+  <h6> Exhibit </h6>
+    <figure class="item">
+    <img class="u-max-full-width" height="500" src="./imgs/exhibit2.jpg"/>
+    <figcaption class="caption">Original exhibit</figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="500" src="./output/exhibit2_warped.jpg"/>
+    <figcaption class="caption">Rectified exhibit</figcaption>
+    </figure>
+
+
+  	<h4> Part 2: Mosaic Blending </h4>
+
+  	<p> This portion of the project involved using the warp homography transformation that was found in part one in order to warp images with overlap together to create mosaics. By warping these images with the projective transformation so that they are all on the same plane and then stitching these photos all together we create a photo that is able to show much more than a single picture alone. I picked one of my images to be a photo that remained unwarped and then rectified the other photo to match this first one. The points chosen were that of the same object / features in the overlap between the two pictures. These points were used to create the homography and then inverse warping was applied to create the warped image. I ultimately used two different methods to blend, neither gave perfect results. One resulted in faint overlaps/ misalignments while the other with Laplacian blending gave a noticeable seam. </p> 
+
+    <h6> Doorway </h6>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/doorleft.jpg"/>
+    <figcaption class="caption">Door picture 1</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/doorright.jpg"/>
+    <figcaption class="caption"> Door picture 2 </figcaption>
+    </figure>
+     <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/laplacian_door_mosaic.jpg"/>
+    <figcaption class="caption"> Door mosaic v1 </figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/blend_door_mosaic.jpg"/>
+    <figcaption class="caption"> Door mosaic v2 </figcaption>
+    </figure>
+
+    <h6> Library </h6>
+  	<figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/libraryleft.jpg"/>
+    <figcaption class="caption">Library picture 1</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/libraryright.jpg"/>
+    <figcaption class="caption"> Library picture 2 </figcaption>
+    </figure>
+     <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/laplacian_library_mosaic.jpg"/>
+    <figcaption class="caption"> Library mosaic v1 </figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/blend_library_mosaic.jpg"/>
+    <figcaption class="caption"> Library mosaic v2 </figcaption>
+    </figure>
+    <h6> Swiss mountains </h6>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/swissleft.jpg"/>
+    <figcaption class="caption">Swiss picture 1</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/swissright.jpg"/>
+    <figcaption class="caption"> Swiss picture 2 </figcaption>
+    </figure>
+     <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/laplacian_swiss_mosaic.jpg"/>
+    <figcaption class="caption"> Swiss mosaic v1 </figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/blend_swiss_mosaic.jpg"/>
+    <figcaption class="caption"> Swiss mosaic v2 </figcaption>
+    </figure>
+
+    <h6> New York City </h6>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/nyc1.jpg"/>
+    <figcaption class="caption">NYC picture 1</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/nyc2.jpg"/>
+    <figcaption class="caption"> NYC picture 2 </figcaption>
+    </figure>
+       <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/blend_nyc_mosaic.jpg"/>
+    <figcaption class="caption"> NYC mosaic </figcaption>
+    </figure>
+
+    <h3> Automatic Stiching and Feature Matching </h3>
+    <p> Because manually selecting correspondences is not only very tedious but also very error-prone and sensitive, we implement feature matching in order to automatically find these correspondences to create our mosaics. </p>
+    <h4> Part 1: Harris Corners </h4>
+
+    <p> We first want to generate points of interests on the image. We use a Harris Corner Detector in order to do so. This will detect corners in an image - points where there is a change in intensity in very direction. I ended up substituting the <code> peak_local_max </code> function in the given harris.py file and using <code> corner_harris </code> instead because this resulted in a faster run time and far less points. Harris corners identified in images below. </p> 
+
+    <h6> NYC </h6> 
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/nyc1_pts.jpg"/>
+    <figcaption class="caption">NYC picture 1</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/nyc2_pts.jpg"/>
+    <figcaption class="caption">NYC picture 2</figcaption>
+    </figure>
+
+    <h4> Part 3: Adaptive Non-Maximal Suppression </h4> 
+    <p> We use ANMS in order to narrow down the identified interet points as well as making sure the points that are selected will be evenly distributed across the entire image. For each coordinate (xi, yi) we will calculate a radius for that point where that point is a local maximum with an intensity that is greater than all other points. The ri found is the minimum suppression radius at point xi. </p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="50" src="./imgs/equation3.jpg"/>
+    <figcaption class="caption"></figcaption>
+    </figure>
+
+    <p> f represents the corner response we get from a particular point which is given to us from the matrix that we obtain from the previous harris function. We set crobust = .9 and we keep only the top 500 points with the largest radii. The results of this can be seen below, where the points are much less and more spread apart. </p>
+
+    <h6> NYC </h6> 
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/nyc1_anmspts.jpg"/>
+    <figcaption class="caption">NYC picture 1</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/nyc2_anmspts.jpg"/>
+    <figcaption class="caption">NYC picture 2</figcaption>
+    </figure>
+
+    <h4> Part 3: Feature Descriptors and Feature Matching </h4>
+    <p> Now that we have our interest points, we want to use them to create feature descriptors. These feature descriptors will describe the point that it's centered around and the immediate neighborhood around it. We first select a 40x40 patch of pixels around the coordinate. Then we downsample the patch to 8x8 by convolving with a Gaussian filter as well as resizing/ subsampling. This will create a patch that has preserved only the low frequencies. We will also normalize the patches so that the features become invariant to affine changes such as bias or gain in intensity.</p> 
+
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./output/feature1.jpg"/>
+    <figcaption class="caption">Feature</figcaption>
+    </figure>
+     <figure class="item">
+    <img class="u-max-full-width" height="100" src="./output/feature2.jpg"/>
+    <figcaption class="caption">Feature</figcaption>
+    </figure>
+     <figure class="item">
+    <img class="u-max-full-width" height="100" src="./output/feature3.jpg"/>
+    <figcaption class="caption">Feature</figcaption>
+    </figure>
+     <figure class="item">
+    <img class="u-max-full-width" height="100" src="./output/feature4.jpg"/>
+    <figcaption class="caption">Feature</figcaption>
+    </figure>
+
+    <p> Once we've generated all of these feature descriptors, we want to match them across two different images. We will compute the squared distance from every feature in the first image to the every one in the second image. We apply the Lowe test afterwards such that if 1-NN / 2-NN is less than a threshold of .3, then the pair will be a match. A feature match will only have one very good match, and if there are multiple close good matches, that it is likely not a match at all. </p> 
+    <h6> NYC </h6> 
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/nyc1_match.jpg"/>
+    <figcaption class="caption">NYC picture 1</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/nyc2_match.jpg"/>
+    <figcaption class="caption">NYC picture 2</figcaption>
+    </figure>
+
+    <h4> Part 4: Random Sample Consensus </h4>
+    <p> While the above matching is able to generate many good matches, there are some outliers that should not be matched together that have been as can be seen in the NYC pictures. In order to fix this, otherwise our homography will be wrong, we must ensure that all outliers are rejected. We use RANSAC for this purpose. We select four random corresponding coordinates from the matched points and then compute a homography based on these four points. After, we will compute a (x'', y'') = H(x, y) on all other points (x, y) where the corresponding point is (x', y'). If the (x'', y'') is close to (x', y') then the homography is good at mapping these corresponding points as long as it is below some error threshold. We will repeat this process many times, keeping track of the largest set of inliers, or points that can be accurately mapped by the calculated homography. These inliers are the true feature matches. We will find the best H matrix with the most inliers and that homography will be used to warp the images. I set an error threshold of .5 and did 500 iterations of this algorithm. You can see in the below images that the outliers are eliminated via this method. </p>
+    <h6> NYC </h6> 
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/nyc1_ransac.jpg"/>
+    <figcaption class="caption">NYC picture 1</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/nyc2_ransac.jpg"/>
+    <figcaption class="caption">NYC picture 2</figcaption>
+    </figure>
+
+    <h4> Mosaic Blending </h4>
+
+    <h6> NYC </h6>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/blend_nyc_mosaic.jpg"/>
+    <figcaption class="caption">Manual correspondences</figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/auto_nycmosaic.jpg"/>
+    <figcaption class="caption">Automatic correspondences</figcaption>
+    </figure>
+
+    <h6> Door </h6>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/blend_door_mosaic.jpg"/>
+    <figcaption class="caption">Manual correspondences</figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/auto_doormosaic.jpg"/>
+    <figcaption class="caption">Automatic correspondences</figcaption>
+    </figure>
+
+
+    <h6> Swiss mountains </h6>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/blend_swiss_mosaic.jpg"/>
+    <figcaption class="caption">Manual correspondences</figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./output/auto_swissmosaic.jpg"/>
+    <figcaption class="caption">Automatic correspondences</figcaption>
+    </figure>
+
+    <p> For me, the automatic stitching was much better as I was not particularly good at rigorously selecting points when using manual stitching and thus the alignments / warps of the images were not very precise as well. Overall automatic stiching results were much better. </p>
+
+    <h4> Summary </h4>
+
+    <p> It was interesting to see how everything worked in order to arrive at the automatic mosaicing. There were a number of different steps, but it was cool to see how the pieces all fit together to eventually results in the final mosaic. All of the algorithms were pretty complex, but it was satisfying to finally understand them all at the end of the project. </p> 
+
+
+  	</div>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>
