@@ -1,0 +1,116 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style> 
+    h1 {text-align: center}
+    figure.item {
+    /* To correctly align image, regardless of content height: */
+    vertical-align: top;
+    display: inline-block;
+    /* To horizontally center images and caption */
+    text-align: center;
+    }
+    div {
+      padding: 20px;
+    }
+    </style>
+    <title>CSCI 6907 Project 3: Image Mosaicing</title>
+  </head>
+  <body>
+  	<h1>CSCI 6907 Project 3: Image Mosaicing</h1>
+  	<div>
+  	<h4> Junhao Chen</h4>
+
+    <p> In this project, we learn how to create a mosaic that connects multiple photos together into one picture. This project will test warping and blending functions on two photographs and finally apply them to create a mosaic by projective warping, resampling, and compositing the pictures. </p>
+
+    <h4> Part 1: Choose Image </h4>
+    
+    <p>Those four photos below are taken in my living room. I took these photos from different views. I put the TV in the middle, not because I want to show my brand new 55" television, but it could be an excellent reference for our future warping.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" width="300" src="./imgs/1.jpg"/>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" width="300" src="./imgs/2.jpg"/>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" width="300" src="./imgs/3.jpg"/>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" width="300" src="./imgs/4.jpg"/>
+    </figure>
+    
+    <p>The left half TV can help compose the first and the second image. The right half TV can help compose the second and the third image. To compose the third and the forth image, I choose the typical object in these images, like chandelier, table, plant and the chair, as our reference point to calculate the H matrix. These factors could make the warping process easier. We could also find out the forth image is much darker than the previous one. Although it could make the blending process harder, we want to make the seam more noticable to test the performance of our blend function.</p>
+
+  	<h4> Part 2: Recover homographies </h4>
+
+  	<p> In order to do the wraping, we will compute homography matrices and use them to warp the images. Only after warping, can we clip those photos in a proper position. For each pixel in the original photo, we assume that <code> p </code> is its <code>[x, y, 1]</code>. And for its new position <code> p' </code>, we need to use <code> H * p = p'</code> to get it. This homography has 8 degrees of freedom which we simpliy into 7 by setting the scaling factor, w, to be 1. And the <code> H * p = p'</code> is shown below.
+    </p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs/equation1.jpg"/>
+    </figure>
+
+    <p> H is the homography, (x, y) is the pixel on the image that will be warped and the (x', y') is the position of the pixel that we want to warp (x, y) to. w in this case is the scaling factor. We want to solve for a, b, c, d, e, f, g, h above. To solve these eight parameters easier, We expand the dot product of the matrix, we could have following euqations.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs/equation2.jpg"/>
+    </figure>
+
+    <p>We then solve them and remove the w in the equation and we could get following equations.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="60" src="./imgs/equation3.jpg"/>
+    </figure>
+
+    <p>For each point, we could get two equations above. To solve and get the result of the eight parameters, at least eight equations are needed, which means we need to know 4 pairs of points before and after the warping. Moreover, We could use multiple (more than 4) points to increase the accuracy of the warp and transformation, using the equation below. To ensure we could solve the H matrix, the four points are not just randomly chosen. None three of them should be on the same line.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/equation4.jpg"/>
+    </figure>
+    
+
+  	<h4> Part 3: Warp the images </h4>
+
+  	<p> This portion of the project involved using the warp homography transformation that was found in part 2 in order to warp images with overlap together to create mosaics. By warping these images with the projective transformation so that they are all on the same plane and then stitching these photos all together we create a photo that is able to show much more than a single picture alone. The points chosen were that of the same object / features in the overlap between the two pictures. These points were used to create the homography and then inverse warping was applied to create the warped image. I ultimately used two different methods to blend, neither gave perfect results. One resulted in faint overlaps/ misalignments while the other with Laplacian blending gave a noticeable seam. </p> 
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/out1.jpg"/>
+    <figcaption class="caption">Warped picture 1</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/out2.jpg"/>
+    <figcaption class="caption"> Warped picture 2 </figcaption>
+    </figure>
+     <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/out3.jpg"/>
+    <figcaption class="caption"> Warped picture 3 </figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs/out4.jpg"/>
+    <figcaption class="caption"> Warped picture 4 </figcaption>
+    </figure>
+
+    <h4> Part 4: Blend images into a mosaic  </h4>
+
+
+    <p> For me, the automatic stitching was much better as I was not particularly good at rigorously selecting points when using manual stitching and thus the alignments / warps of the images were not very precise as well. Overall automatic stiching results were much better. </p>
+
+    <h4> Summary </h4>
+
+    <p> It was interesting to see how everything worked in order to arrive at the automatic mosaicing. There were a number of different steps, but it was cool to see how the pieces all fit together to eventually results in the final mosaic. All of the algorithms were pretty complex, but it was satisfying to finally understand them all at the end of the project. </p> 
+
+
+  	</div>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>
