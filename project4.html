@@ -1,0 +1,218 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style> 
+    h1 {text-align: center}
+    figure.item {
+    /* To correctly align image, regardless of content height: */
+    vertical-align: top;
+    display: inline-block;
+    /* To horizontally center images and caption */
+    text-align: center;
+    }
+    div {
+      padding: 20px;
+    }
+    </style>
+    <title>CSCI 6907 Project 4: Poisson Image Editing</title>
+  </head>
+  <body>
+  	<h1>CSCI 6907 Project 4: Poisson Image Editing</h1>
+  	<div>
+  	<h4> Junhao Chen</h4>
+
+    <p> In this project, we learn how to use the gradient domain to blend multiple photos together into one picture. This algorithm can blend the image seamlessly, making the resulting image very natural. This project follows the method and algorithm of <a href="https://www.cs.jhu.edu/~misha/Fall07/Papers/Perez03.pdf">Perez's paper</a> .</p>
+
+    <h4> Part 1: Interploate without guidance </h4>
+    
+    <p>The basic logic of the algorithm is use the gradient domain as the guidance to blend the feature of source image to the target image. As the paper described, the simplest interpolation is without guidance. In this situtation, for the interpolation function<code> f </code> we have the equation below.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" width="350" src="./imgs2/equation1.png"/>
+    </figure>
+    <p>And the solution for this equation is shown below.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" width="330" src="./imgs2/equation2.png"/>
+    </figure>
+
+
+    <figure class="item">
+    <img class="u-max-full-width" width="150" src="./imgs2/equation3.png"/>
+    </figure>
+
+  
+    <p>It means the gradient of the mask area on the target image is 0, while the boundary point has the same RGB value with origin source image after interpolation. For a point <code> (x, y) </code> on the mask, we have its four neighborhoods,<code> (x-1,y), (x+1,y), (x,y-1), (x,y+1)</code>. If its neighborhoods are also on the mask, then we have <code>result(x-1,y) + result(x+1,y) + result(x,y-1) + result(x,y+1) - 4*result(x,y) = 0</code>. If the neighborhood is not on the mask, we change that term in that equation to that pixel on the origin source image. Because each point are corresponding to each other, it is hard to calculate points one by one following a given order. So, I build a linear equation to solve all the pixels at the same time shown below.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" width="900" src="./imgs2/equation4.png"/>
+    </figure>
+
+    <p>I squeeze the mask into a vector of size n, which is the number of pixels in the mask. Then I apply the relationship above in the Matrix A, whose size is n * n. For that pixel, its parameter is 4. And for its neighborhood on the mask, we set them to -1. And for neighbor pixels not on the mask, I add that value to the corresponding position in the b vector. Otherwise, bi in the b vector should be 0. After solving this linear equation, we could get the RGB value of each pixel. And here are some examples.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="240" src="./imgs2/mask.jpeg"/>
+    <figcaption class="caption">Mask</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="240" src="./imgs2/mona_before.jpeg"/>
+    <figcaption class="caption">Before interpolation</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="240" src="./imgs2/mona_after.jpg"/>
+    <figcaption class="caption">After interpolation</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="240" src="./imgs2/pearl_mask.jpg"/>
+    <figcaption class="caption">Mask</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="240" src="./imgs2/pearl_before.jpeg"/>
+    <figcaption class="caption">Before interpolation</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="240" src="./imgs2/pearl_after.jpg"/>
+    <figcaption class="caption">After interpolation</figcaption>
+    </figure>
+
+
+  	<h4> Part 2: Interpolate with Guidance </h4>
+
+  	<p> If we consider interpolation without guidance as cleaning the background, adding a guidance vector field is like blending the feature from the source image to that background. Similar to the equation before, we add the vector field in the equation this time to add the feature from the source image. The equations are shown below.
+    </p>
+
+    <figure class="item">
+    <img class="u-max-full-width" width="350" src="./imgs2/equation5.png"/>
+    </figure>
+    <p>And the solution for this equation is shown below.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" width="330" src="./imgs2/equation6.png"/>
+    </figure>
+
+
+    <figure class="item">
+    <img class="u-max-full-width" width="130" src="./imgs2/equation7.png"/>
+    </figure>
+
+    <p>Therefore, I need to calculate the gradient vector at each pixel in the source image. And I add those vectors to the corresponding bi in the b vector of the equation above. The rest processes are almost the same as the interpolation above, calculating the <code>x = inv(A)*b</code>. And here are some result examples.</p>
+
+    <p>First, here is an example of the handsome guy in the lecture note.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="350" src="./imgs2/source1.jpeg"/>
+    <figcaption class="caption">Source</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="350" src="./imgs2/mona_with_guide.jpg"/>
+    <figcaption class="caption">Mona with guidance vector</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="350" src="./imgs2/pearl_with_guide.jpg"/>
+    <figcaption class="caption">Pearl with guidance vector</figcaption>
+    </figure>
+
+    <p>And then I implement a example of joker as the source image.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="350" src="./imgs2/source2.jpeg"/>
+    <figcaption class="caption">Joker</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="350" src="./imgs2/mona_joker_s.jpg"/>
+    <figcaption class="caption">Mona with guidance vector</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="350" src="./imgs2/pearl_joker_s.jpg"/>
+    <figcaption class="caption">Pearl with guidance vector</figcaption>
+    </figure>
+
+    <p>Although we successfully change the face of two famous paintings, the blending seems not seamless enough. One of the most important reasons is that we simply erase the feature of the original target image. Thus, I need a more complicated guidance vector to save the feature of the target image.</p>
+
+  	<h4> Part 3: Mix Gradients</h4>
+
+    <p>As we talk about saving the feature, Perez gives an efficient but straightforward way. He compares the gradient of the target image and the source image and takes the larger one as the final gradient we want to import to the final result.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" width="500" src="./imgs2/equation8.png"/>
+    </figure>
+
+    <p>So, I implement this comparison process where we add the gradient directly to the b vector. And here are some results.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="350" src="./imgs2/mona_with_mix.jpg"/>
+    <figcaption class="caption">Mona with Mix Gradient</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="350" src="./imgs2/pearl_with_mix.jpg"/>
+    <figcaption class="caption">Pearl with Mix Gradient</figcaption>
+    </figure>
+
+    <p>We could find out the result is even worse. I think it is hard to have both facial features and blend them into a single image unless the facial pose of the two images is highly overlapping. But I still come up with some examples of which mix gradient works better. Consider a situation in which we want to stick some words on an object. It would be so tedious to cut a mask along with every alphabet. Suppose we have the following text.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="200" src="./imgs2/source3.jpg"/>
+    <figcaption class="caption">Source Text</figcaption>
+    </figure>
+
+    <p>And we want to paste it onto a wooden object.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="250" src="./imgs2/wood.jpg"/>
+    <figcaption class="caption">Wood Background</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="250" src="./imgs2/mix_gradient.jpg"/>
+    <figcaption class="caption">Text with Mix Gradient</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="250" src="./imgs2/normal_gradient.jpg"/>
+    <figcaption class="caption">Text with Normal Gradient</figcaption>
+    </figure>
+
+    <p>In this case, the mix gradient could save more wooden texture compared with normal gradient. Also, an example of blend the text onto a macbook image is shown below.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="400" src="./imgs2/macbook.jpg"/>
+    <figcaption class="caption">Apple Background</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="400" src="./imgs2/mix_macbook.jpg"/>
+    <figcaption class="caption">Macbook with Mix Gradient</figcaption>
+    </figure>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="400" src="./imgs2/normal_macbook.jpg"/>
+    <figcaption class="caption">Macbook with Normal Gradient</figcaption>
+    </figure>
+
+    <h4> Summary </h4>
+
+    <p> It was interesting to see how everything worked to arrive at the final blending. This classic blending method is very simple and straightforward. And it works great in some naive situations. However, it has its limitation, especially when we implement facial reconstruction. Because this method ignores the facial pose, it is hard to blend the images to get a natural face, even using the mix gradient. </p> 
+
+
+  	</div>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>
