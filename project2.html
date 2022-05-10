@@ -1,0 +1,235 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <style> 
+    h1 {text-align: center}
+    figure.item {
+    /* To correctly align image, regardless of content height: */
+    vertical-align: top;
+    display: inline-block;
+    /* To horizontally center images and caption */
+    text-align: center;
+    }
+    div {
+      padding: 20px;
+    }
+    </style>
+    <title>CSCI 6907 Project 2: Hybrid Image</title>
+  </head>
+  <body>
+  	<h1>CSCI 6907 Project 2: Hybrid Image</h1>
+  	<div>
+  	<h4> Junhao Chen</h4>
+
+    <p> In this project, we learn how to create a low-frequency filter and a high-frequency filter to get two different spatial scales. After composing these different scales, we could get magic hybrid image which looks different when you are in different distances.</p>
+
+    <h4> Part 1: Low-pass Filter and High-pass filter </h4>
+    
+    <p>When Gaussian filtering smoothes pixels in the image neighborhood, pixels at different locations in the neighborhood are given different weights, smoothing the image while preserving more of the overall grayscale distribution characteristics of the image. Here I mainly use the discrete window sliding convolution. And this method mainly uses a Gaussian kernel to implement.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" width="400" src="./imgs4/kernel.png"/>
+    </figure>
+
+    <p>For the 2D Gaussian kernel, I first use the equation above to generate a 1D Gaussian kernel, according to the given kernel size and sigma. And then, for the 1D Gaussian kernel <code> x </code>, I can calculate the <code> 2D_kernel = x · x' </code> to get the 2D Gaussian kernel. The Gaussian kernel is related to the cutoff frequency. The size of the kernel should be <code> size = 4 * cutoff_frequency + 1 </code>, and the sigma of the kernel equals to the cutoff frequency.</p>
+
+    <p>As the description recommend, the high-pass filter is quite simple. It directly use the original image to minus image after the low-pass filtering. The high-pass and low-pass result for the given sample images are shown below (current cutoff frequency for testing is 7).</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs4/bear.jpg"/>
+    <figcaption class="caption">Bear</figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs4/bear_low.jpg"/>
+    <figcaption class="caption">Low-pass filter</figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs4/wrighton.jpg"/>
+    <figcaption class="caption">Wrighton</figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs4/w_high.jpg"/>
+    <figcaption class="caption">High-pass filter</figcaption>
+    </figure>
+
+
+  	<h4> Part 2: Image and Cutoff Frequency Choosing </h4>
+
+  	<p>After testing the filter functions, I would like to choose my own images for hybrding. David Bowie and Billie Joe are two of my favorite singers who always have very stylish appearance and makeup. Thus, it will be interesting to hybrid them into the same picture. </p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs4/david.jpg"/>
+    <figcaption class="caption"><b>David Bowie</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs4/joe.jpg"/>
+    <figcaption class="caption"><b>Billie Joe</b></figcaption>
+    </figure>
+
+    <p>Also, the Mona Lisa example I used in the final project could also be great trying for blending.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs4/mona.jpg"/>
+    <figcaption class="caption"><b>Mona Lisa</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="300" src="./imgs4/mona_s.jpg"/>
+    <figcaption class="caption"><b>Mona Lisa source</b></figcaption>
+    </figure>
+        
+    <p>To ensure the result of the hybrid images, we need to match the features of both images. I use the wrap functions to match the eyes, mouth and nose of these two pairs of examples shown above.</p>
+
+    <p>After choosing images I want to hybrid, I need to test to get best cutoff frequency for each examples. Because the David Bowie is more colorful, I set it as the high-frequency image.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david2.jpg"/>
+    <figcaption class="caption"><b>f = 2</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david3.jpg"/>
+    <figcaption class="caption"><b>f = 3</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david4.jpg"/>
+    <figcaption class="caption"><b>f = 4</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david5.jpg"/>
+    <figcaption class="caption"><b>f = 5</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david6.jpg"/>
+    <figcaption class="caption"><b>f = 6</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david7.jpg"/>
+    <figcaption class="caption"><b>f = 7</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david8.jpg"/>
+    <figcaption class="caption"><b>f = 8</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david9.jpg"/>
+    <figcaption class="caption"><b>f = 9</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david10.jpg"/>
+    <figcaption class="caption"><b>f = 10</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david11.jpg"/>
+    <figcaption class="caption"><b>f = 11</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david12.jpg"/>
+    <figcaption class="caption"><b>f = 12</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david13.jpg"/>
+    <figcaption class="caption"><b>f = 13</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david14.jpg"/>
+    <figcaption class="caption"><b>f = 14</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/david15.jpg"/>
+    <figcaption class="caption"><b>f = 15</b></figcaption>
+    </figure>
+
+    <p>The low-frequency images of Billie Joy are shown below in different cutoff frequency.</p>
+
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe2.jpg"/>
+    <figcaption class="caption"><b>f = 2</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe3.jpg"/>
+    <figcaption class="caption"><b>f = 3</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe4.jpg"/>
+    <figcaption class="caption"><b>f = 4</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe5.jpg"/>
+    <figcaption class="caption"><b>f = 5</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe6.jpg"/>
+    <figcaption class="caption"><b>f = 6</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe7.jpg"/>
+    <figcaption class="caption"><b>f = 7</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe8.jpg"/>
+    <figcaption class="caption"><b>f = 8</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe9.jpg"/>
+    <figcaption class="caption"><b>f = 9</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe10.jpg"/>
+    <figcaption class="caption"><b>f = 10</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe11.jpg"/>
+    <figcaption class="caption"><b>f = 11</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe12.jpg"/>
+    <figcaption class="caption"><b>f = 12</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe13.jpg"/>
+    <figcaption class="caption"><b>f = 13</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe14.jpg"/>
+    <figcaption class="caption"><b>f = 14</b></figcaption>
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="100" src="./imgs4/joe15.jpg"/>
+    <figcaption class="caption"><b>f = 15</b></figcaption>
+    </figure>
+
+    <p>To make a better hybrid image, we need to make sure the low-frequency image should not be too blur, and the high-frequency image should clear enough so that we could find it while in a longer distance. Thus, for the David-Joe, the best frequency is 11 as a trade off. And the frequency for Mona Lisa should be 3. The David-Joe could also give me a feeling that Joe is thinner than he should be, because this feature of David has already blurred into the hybrid image.</p>
+
+  	<h4> Part 3: Construct Hybrid Image </h4>
+
+  	<p> Constructing the image could be the easiest part in this project. But it is also the most interesting part. After I get the low-frequency image and the high-frequency image, a simple add <code> hybrid_image = low_frequencies + high_frequencies </code> could help us get the final result. Result hybrid images are shown below.</p> 
+
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="500" src="./imgs4/hybrid_image_david_joe11.png"/>
+    <figcaption class="caption"><b>David-Joe</b></figcaption>
+    </figure>
+
+    </figure>
+    <figure class="item">
+    <img class="u-max-full-width" height="500" src="./imgs4/hybrid_image_mona3.png"/>
+    <figcaption class="caption"><b>Hybrid Mona Lisa</b></figcaption>
+    </figure>
+
+
+    <h4> Summary </h4>
+
+    <p>A low frequency picture and a high frequency image are combined to create the hybrid image. The edges of an image's high frequency components are sharply varying pixel values, whereas the low frequency components are blurred color blocks with no obvious borders between them. When the picture is close to the observer, the edge details are clearly captured by the eyes, however when the image is far away, the color blocks of the image dominate. And the it is very interesting to hybrid features of two images into the final result.</p> 
+
+
+  	</div>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+  </body>
+</html>
